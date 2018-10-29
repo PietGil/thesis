@@ -104,7 +104,7 @@ while(succes):
   #     cv2.putText(frame,str,(100,100+plek),font,1,(0,255,0),1,cv2.LINE_AA)
   #     plek+=25
   out.write(frame)
-  cv2.imshow('frame',frame)
+  #cv2.imshow('frame',frame)
   # currentstrings=[""]
 
   if cv2.waitKey(1)& 0xFF==ord('q'):#sluiten als de video afgespeeld is
