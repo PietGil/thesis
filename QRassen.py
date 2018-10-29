@@ -1,4 +1,8 @@
 from __future__ import print_function
+from mpl_toolkits import mplot3d
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import matplotlib.pyplot as plt
 import pyzbar.pyzbar as pyzbar
 import numpy as np
 import cv2
@@ -102,12 +106,32 @@ def drawAxis(frame,welke):
     #print('afstandcx %f' %afstandcx)
     afstandfx=focalLength*120.0/afstandX
     print('afstandfx %f mm' %afstandfx)
+    rotMat,_ = cv2.Rodrigues(rvecs)
+    T0 = np.zeros((4, 4))
+    T0[:3,:3] = rotMat
+    T0[:4,3] = [0, 0, 0, 1]
+    T0[:3,3] =  np.transpose(tvecs)
+    cam=np.transpose([0, 0, 0, 1])
+    transform=np.dot(T0,cam)
+    maxval=np.amax(transform)
+    print('positie camera:')
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    
+    ax.plot([0 ,0],[0,(transform[1])],[0,0],color='blue')
+    ax.plot([0 ,(transform[0])],[0,0],[0,0],color='green')
+    ax.plot([0 ,0],[0,0],[0,(transform[2])],color='red')
+    ax.plot([0 ,transform[0]],[0,transform[1]],[0,transform[2]],color='yellow')
+    print(transform)
+    plt.show()
+    
+    
    
 
     
 
   
 
-for k in range(0,len(framesnamen)):
+for k in range(2,3):
   foto=cv2.imread(framesnamen[k])
   drawAxis(foto,framesnamen[k])
