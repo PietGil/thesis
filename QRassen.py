@@ -5,11 +5,18 @@ import cv2
 import glob
 import math
 
-frames=[]
-frames.append(cv2.imread('LR.jpg'))
-frames.append(cv2.imread('links.jpg'))
-frames.append(cv2.imread('rechts.jpg'))
-frames.append(cv2.imread('50cm.jpg'))
+framesnamen=[]
+framesnamen.append('LR.jpg')
+framesnamen.append('links.jpg')
+framesnamen.append('rechts.jpg')
+framesnamen.append('50cm.jpg')
+framesnamen.append('40cm.jpg')
+framesnamen.append('50cm2.jpg')
+framesnamen.append('60cm.jpg')
+framesnamen.append('70cm.jpg')
+framesnamen.append('75cm.jpg')
+framesnamen.append('n50cm.jpg')
+framesnamen.append('n60cm.jpg')
 
 
 def draw(img, corners, imgpts):
@@ -38,9 +45,9 @@ def drawAxis(frame,welke):
   if(len(decodedObjects)>0):
     vector3D=np.zeros((4,3), np.float32)
     vector3D[0]=(0,0,0)
-    vector3D[1]=(0,10,0)
-    vector3D[2]=(10,10,0)
-    vector3D[3]=(10,0,0)
+    vector3D[1]=(0,120,0)
+    vector3D[2]=(120,120,0)
+    vector3D[3]=(120,0,0)
     testarray=np.zeros((4,1,2), np.float32)
 
     for i in range(0,4):
@@ -69,11 +76,11 @@ def drawAxis(frame,welke):
     #print (rvecs)
     #print( tvecs)
     _,rvecs, tvecs, inliers = cv2.solvePnPRansac(vector3D, testarray, mtx, dist)
-    axis = np.float32([[10,0,0], [0,10,0], [0,0,-10]])
+    axis = np.float32([[120,0,0], [0,120,0], [0,0,-120]])
     imgpts, jac = cv2.projectPoints(axis,rvecs, tvecs, mtx, dist)
     frame = draw(frame,testarray,imgpts)
-    cv2.imwrite('test%d.jpg'%welke,frame)
-    print(mtx)
+    cv2.imwrite('test%s.jpg'%welke,frame)
+    #print(mtx)
     yh,xw=frame.shape[:2]
     #print(newcameramtx)
     fx=mtx[0][0]
@@ -81,28 +88,26 @@ def drawAxis(frame,welke):
     cx=mtx[0][2]
     cy=mtx[1][2]
     focalLength=(fx+fy)/2
+    print('       huidige afbeelding %s'%welke)
     print('focalLength %f' %focalLength)
     afstandY=math.sqrt(((punten2D[1][0]-punten2D[2][0])*1.0)**2+(1.0*(punten2D[1][1]-punten2D[2][1]))**2)
-    print('volgende %d'%welke)
     #print('afstandY %f'%afstandY)
     #afstandcy=cx*10.0/afstandY
     #print('afstandcy %f' % afstandcy)
-    afstandfy=focalLength*10.0/afstandY
-    print('afstandfy %f' %afstandfy)
+    afstandfy=focalLength*120.0/afstandY
+    print('afstandfy %f mm' %afstandfy)
     afstandX=math.sqrt(((punten2D[0][0]-punten2D[1][0])*1.0)**2+(1.0*(punten2D[0][1]-punten2D[1][1]))**2)
     #print('afstandX %f'%afstandX)
     #afstandcx=cy*10.0/afstandX
     #print('afstandcx %f' %afstandcx)
-    afstandfx=focalLength*10.0/afstandX
-    print('afstandfx %f' %afstandfx)
-    fafstand=math.sqrt((afstandfx)**2+(afstandfy)**2)
-    print('fafstand %f' %fafstand)
-    #cafstand=math.sqrt((afstandcx)**2+(afstandcy)**2)
-    #print('cafstandfx %f' %cafstand)
+    afstandfx=focalLength*120.0/afstandX
+    print('afstandfx %f mm' %afstandfx)
+   
 
     
 
   
 
-for k in range(0,len(frames)):
-  drawAxis(frames[k],k)
+for k in range(0,len(framesnamen)):
+  foto=cv2.imread(framesnamen[k])
+  drawAxis(foto,framesnamen[k])
