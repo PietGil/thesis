@@ -38,14 +38,38 @@ def drawAxis(frame,welke):
       
       
       if len(points) > 4 : 
-        punten2D = cv2.convexHull(np.array([point for point in points], dtype=np.float32))
-        punten2D= list(map(tuple, np.squeeze(punten2D)))
+        hull = cv2.convexHull(np.array([point for point in points], dtype=np.float32))
+        hull= list(map(tuple, np.squeeze(hull)))
       else : 
-        punten2D = points
-      ##print(punten2D)
-      #for i in range(0,4):
-          #cv2.putText(frame,'(%d,%d)'% (punten2D[i][0], punten2D[i][1]),punten2D[i],cv2.FONT_HERSHEY_DUPLEX,2,(0,255,0),2,cv2.LINE_AA)
+        hull = points
+      
+      hull=sorted(hull, key=lambda k:[k[0],k[1]])
+      minx=hull[0][0]
+      maxx=hull[3][0]
+      middenx=0.5*(maxx+minx)
+      hull=sorted(hull, key=lambda k:[k[1],k[0]])
+      miny=hull[0][1]
+      maxy=hull[3][1]
+      middeny=0.5*(maxy+miny)      
+      punten2D=[(0,0),(0,0),(0,0),(0,0)]
+      for point in hull:
+        if(point[0]>middenx):
+          if(point[1]>middeny):
+            punten2D[1]=point
+          else:
+            punten2D[2]=point
+        else:
+          if(point[1]>middeny):
+            punten2D[0]=point
+          else:
+            punten2D[3]=point
 
+      #print(punten2D)
+      #for i in range(0,4):
+      #   cv2.putText(frame,'(%d,%d)'%(punten2D[i][0],punten2D[i][1]),punten2D[i],cv2.FONT_HERSHEY_DUPLEX,2,(0,255,0),2,cv2.LINE_AA)
+      
+
+  
   if(len(decodedObjects)>0):
     vector3D=np.zeros((4,3), np.float32)
     vector3D[0]=(0,0,0)
@@ -118,9 +142,9 @@ def drawAxis(frame,welke):
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     
-    ax.plot([0 ,0],[0,(transform[1])],[0,0],color='blue')
-    ax.plot([0 ,(transform[0])],[0,0],[0,0],color='green')
-    ax.plot([0 ,0],[0,0],[0,(transform[2])],color='red')
+    ax.plot([0 ,0],[0,120],[0,0],color='blue')
+    ax.plot([0 ,120],[0,0],[0,0],color='green')
+    ax.plot([0 ,0],[0,0],(0,transform[2]),color='red')
     ax.plot([0 ,transform[0]],[0,transform[1]],[0,transform[2]],color='yellow')
     print(transform)
     plt.show()
@@ -131,7 +155,7 @@ def drawAxis(frame,welke):
     
 
   
-
-for k in range(2,3):
+for k in range(1,3):
+#for k in range(0,len(framesnamen)):
   foto=cv2.imread(framesnamen[k])
   drawAxis(foto,framesnamen[k])
