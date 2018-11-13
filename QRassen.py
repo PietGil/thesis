@@ -145,7 +145,7 @@ def drawAxis(frame,welke):
     ax.plot([0 ,0],[0,120],[0,0],color='blue')
     ax.plot([0 ,120],[0,0],[0,0],color='green')
     ax.plot([0 ,0],[0,0],(0,transform[2]),color='red')
-    ax.plot([0 ,transform[0]],[0,transform[1]],[0,transform[2]],color='yellow')
+    ax.plot([0 ,transform[0]],[0,transform[1]],[0,transform[2]],color='purple')
     print(transform)
     plt.show()
     
