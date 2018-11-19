@@ -164,7 +164,7 @@ fourcc=cv2.VideoWriter_fourcc(*'XVID')
 out =cv2.VideoWriter('outputAfstand.avi',fourcc,30,(1920,1080))
 
 while(succes):
-  if(count%20==0):
+  if(count%28==0):
     frame=drawAxis(frame,'test')
   count+=1
   out.write(frame)
