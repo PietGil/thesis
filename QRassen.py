@@ -10,6 +10,9 @@ import glob
 import math
 
 framesnamen=[]
+framesnamen.append('linksvideo.jpg')
+framesnamen.append('loodrechtvideo.jpg')
+framesnamen.append('rechtsvideo.jpg')
 framesnamen.append('LR.jpg')
 framesnamen.append('links.jpg')
 framesnamen.append('rechts.jpg')
@@ -135,6 +138,9 @@ def drawAxis(frame,welke):
     T0[:3,:3] = rotMat
     T0[:4,3] = [0, 0, 0, 1]
     T0[:3,3] =  np.transpose(tvecs)
+    R=rotMat.transpose()
+    cam2=-np.dot(R,tvecs)
+    print("nieuwe formule",cam2)
     cam=np.transpose([0, 0, 0, 1])
     transform=np.dot(T0,cam)
     maxval=np.amax(transform)
@@ -144,8 +150,9 @@ def drawAxis(frame,welke):
     
     ax.plot([0 ,0],[0,120],[0,0],color='blue')
     ax.plot([0 ,120],[0,0],[0,0],color='green')
-    ax.plot([0 ,0],[0,0],(0,transform[2]),color='red')
-    ax.plot([0 ,transform[0]],[0,transform[1]],[0,transform[2]],color='purple')
+    ax.plot([0 ,0],[0,0],(0,-cam2[2]),color='red')
+    #ax.plot([0 ,transform[0]],[0,transform[1]],[0,transform[2]],color='purple')
+    ax.plot([0 ,cam2[0]],[0,cam2[1]],[0,-cam2[2]],color='yellow')
     print(transform)
     plt.show()
     
@@ -155,7 +162,7 @@ def drawAxis(frame,welke):
     
 
   
-for k in range(1,3):
+for k in range(3,6):
 #for k in range(0,len(framesnamen)):
   foto=cv2.imread(framesnamen[k])
   drawAxis(foto,framesnamen[k])

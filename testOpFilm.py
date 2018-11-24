@@ -10,6 +10,9 @@ import glob
 import math
 
 framesnamen=[]
+framesnamen.append('linksvideo.jpg')
+framesnamen.append('loodrechtvideo.jpg')
+framesnamen.append('rechtsvideo.jpg')
 framesnamen.append('LR.jpg')
 framesnamen.append('links.jpg')
 framesnamen.append('rechts.jpg')
@@ -31,7 +34,7 @@ def draw(img, corners, imgpts):
     return img
 
 
-def drawAxis(frame,welke):
+def drawAxis(frame,welke,punten):
   decodedObjects=pyzbar.decode(frame)
   for decodedObject in decodedObjects: 
       points = decodedObject.polygon
@@ -96,7 +99,7 @@ def drawAxis(frame,welke):
     # crop the image
     x,y,w,h = roi
     dst = dst[y:y+h, x:x+w]
-    cv2.imwrite('calibresult.png',dst)
+    #cv2.imwrite('calibresult.png',dst)
 
     #print(ret)
     #print (mtx)
@@ -117,63 +120,83 @@ def drawAxis(frame,welke):
     cy=mtx[1][2]
     focalLength=(fx+fy)/2
     #print('       huidige afbeelding %s'%welke)
-    print('focalLength %f' %focalLength)
-    afstandY=math.sqrt(((punten2D[1][0]-punten2D[2][0])*1.0)**2+(1.0*(punten2D[1][1]-punten2D[2][1]))**2)
+    #print('focalLength %f' %focalLength)
+    #afstandY=math.sqrt(((punten2D[1][0]-punten2D[2][0])*1.0)**2+(1.0*(punten2D[1][1]-punten2D[2][1]))**2)
     #print('afstandY %f'%afstandY)
     #afstandcy=cx*10.0/afstandY
     #print('afstandcy %f' % afstandcy)
-    afstandfy=focalLength*120.0/afstandY
-    print('afstandfy %f mm' %afstandfy)
-    afstandX=math.sqrt(((punten2D[0][0]-punten2D[1][0])*1.0)**2+(1.0*(punten2D[0][1]-punten2D[1][1]))**2)
+    #afstandfy=focalLength*120.0/afstandY
+    #print('afstandfy %f mm' %afstandfy)
+    #afstandX=math.sqrt(((punten2D[0][0]-punten2D[1][0])*1.0)**2+(1.0*(punten2D[0][1]-punten2D[1][1]))**2)
     #print('afstandX %f'%afstandX)
     #afstandcx=cy*10.0/afstandX
     #print('afstandcx %f' %afstandcx)
-    afstandfx=focalLength*120.0/afstandX
-    print('afstandfx %f mm' %afstandfx)
+    #afstandfx=focalLength*120.0/afstandX
+    #print('afstandfx %f mm' %afstandfx)
     rotMat,_ = cv2.Rodrigues(rvecs)
-    T0 = np.zeros((4, 4))
-    T0[:3,:3] = rotMat
-    T0[:4,3] = [0, 0, 0, 1]
-    T0[:3,3] =  np.transpose(tvecs)
-    cam=np.transpose([0, 0, 0, 1])
-    transform=np.dot(T0,cam)
-    maxval=np.amax(transform)
-    print('positie camera:')
+    # T0 = np.zeros((4, 4))
+    # T0[:3,:3] = rotMat
+    # T0[:4,3] = [0, 0, 0, 1]
+    # T0[:3,3] =  np.transpose(tvecs)
+    #cam=np.transpose([0, 0, 0, 1])
+    #transform=np.dot(T0,cam)
+    #maxval=np.amax(transform)
+    R=rotMat.transpose()
+    cam2=-np.dot(R,tvecs)
+    #print('positie camera:')
     #fig = plt.figure()
     #ax = plt.axes(projection='3d')
-    
-    ax.plot([0 ,0],[0,120],[0,0],color='blue')
-    ax.plot([0 ,120],[0,0],[0,0],color='green')
-    ax.plot([0 ,0],[0,0],(0,transform[2]),color='red')
-    ax.plot([0 ,transform[0]],[0,transform[1]],[0,transform[2]],color='yellow')
-    print(transform)
-    print(cx,cy)
+    #ax.plot([0 ,cam2[0]],[0,cam2[1]],[0,-cam2[2]],color='yellow')
+    #punten2.append((transform[0],transform[1],transform[2]))
+    punten.append((cam2[0],cam2[1],cam2[2]))
+    # ax.plot([0 ,0],[0,120],[0,0],color='blue')
+    # ax.plot([0 ,120],[0,0],[0,0],color='green')
+    # ax.plot([0 ,0],[0,0],(0,transform[2]),color='red')
+    # ax.plot([0 ,transform[0]],[0,transform[1]],[0,transform[2]],color='yellow')
+    #print(transform)
+    #print(cx,cy)
     return frame
     #plt.show()
     
     
-   
 
-    
 fig = plt.figure()
 ax = plt.axes(projection='3d')
-cap =cv2.VideoCapture('VideoAfstand.mp4')
+cap =cv2.VideoCapture('rechtsLinks.mp4')
 succes,frame =cap.read() 
 count=0
 fourcc=cv2.VideoWriter_fourcc(*'XVID')
-out =cv2.VideoWriter('outputAfstand.avi',fourcc,30,(1920,1080))
-
-while(succes):
-  if(count%28==0):
-    frame=drawAxis(frame,'test')
+out =cv2.VideoWriter('outputrechtsLinks.avi',fourcc,30,(1920,1080))
+punten=[]
+while(succes and count<5000):
+  if(count%10==0):
+    print("tijd",count/30)
+  frame=drawAxis(frame,'test',punten)
   count+=1
   out.write(frame)
-  
+  succes,frame =cap.read() 
 
-
+print(len(punten),count/5)
 """
-for k in range(1,3):
+punten=[]
+for k in range(0,3):
 #for k in range(0,len(framesnamen)):
   foto=cv2.imread(framesnamen[k])
-  drawAxis(foto,framesnamen[k])
-"""
+  frame=drawAxis(foto,framesnamen[k],punten)   
+  cv2.imwrite('test%d.jpg'%k,frame)
+ """   
+
+ax = plt.axes(projection='3d')
+ax.plot([0 ,0],[0,120],[0,0],color='green')
+ax.plot([0 ,120],[0,0],[0,0],color='red')
+ax.plot([0 ,0],[0,0],(0,120),color='blue')
+for k in range(0, len(punten)):
+  a,b,c=punten[k]
+  ax.plot([0 ,a],[0,b],[0,-c],color='yellow')
+  print("afstand",math.sqrt(a**2+b**2+c**2))
+
+  
+
+plt.show()
+
+
